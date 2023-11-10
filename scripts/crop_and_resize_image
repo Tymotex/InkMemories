@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+
+import os
+from PIL import Image
+
+
+PATH = os.path.dirname(__file__)
+
+EXAMPLE_IMAGE_PATH = './example-images/ultrawide-wallpaper.png'
+
+img = Image.open(os.path.join(PATH, EXAMPLE_IMAGE_PATH))
+
+def determine_central_crop_coordinates(crop_width_px, crop_height_px):
+    """Determine cropping box coordinates.
+    """
+    pass
+
+
+def central_crop(image):
+    """Returns the central crop
+    """
+    pass
+
+
+def resize_to_resolution(width_px, height_px):
+    """Resizes the given photo to the display's resolution.
+
+    Resizing may mess up the aspect ratio. Crop the image according to the eInk
+    display's aspect ratio before resizing the image.
+    """
