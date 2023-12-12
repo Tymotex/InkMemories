@@ -1,0 +1,19 @@
+[Unit]
+Description=Google Photos RClone Mount
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+ExecStartPre=mkdir -p %h/Pictures/InkMemories
+ExecStart= \
+  /usr/bin/rclone mount \
+    --config=%h/.config/rclone/rclone.conf \
+    --vfs-cache-mode writes \
+    --vfs-cache-max-size 100M \
+    --umask 022 \
+    GooglePhotos:shared-album/🥑🍉 %h/Pictures/InkMemories
+ExecStop=/bin/fusermount -u %h/Pictures/InkMemories
+
+[Install]
+WantedBy=default.target

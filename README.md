@@ -12,6 +12,11 @@ These instructions assume that you have set up Raspbian OS.
 - Set a hostname that you'd like with `cat $NEW_HOSTNAME >> /etc/hostname`.
 - In your router's configuration either disable DHCP or reserve a static IP for the Raspberry Pi.
 
+TODO: elaborate on these steps.
+1. Clone repo.
+2. Set up API credentials. TODO: Link to heading below.
+3. 
+
 ## Components
 - Raspberry Pi Zero W and its power supply.
 - Inky Impression 5.7" 600x448p (7 colour eInk HAT). [Source](https://shop.pimoroni.com/products/inky-impression-5-7?variant=32298701324371).
@@ -22,7 +27,15 @@ These instructions assume that you have set up Raspbian OS.
 ### Google Photos API
 The photos are sourced from a shared Google Photos album.
 
-As of 2023, the free tier permits 10000 requests per day for operations such as uploading images, and 75000 requests per day for reading images. In other words, it's surely enough for this project.
+As of 2023, the free tier permits 10000 requests per day for operations such as uploading images, and 75000 requests per day for reading images. In other words, it's almost certainly enough for this project but may require some image caching on our side to reduce requests for very large albums and very short image refresh periods.
+
+#### Setting Up API Credentials
+Follow the [getting started guide](https://developers.google.com/photos/library/guides/get-started#enable-the-api)
+
+tl;dr:
+1. Create a new Project and enable the Google Photos API for it.
+2. Request an OAuth 2.0 client ID.
+    As a result of this, you'll get a client ID and client secret.
 
 #### Retrieving a shared album's images
 Note: In my situation, the album I wanted to display was shared with me.
@@ -44,4 +57,14 @@ The solution chosen in this project is to crop the center.
 
 
 
+---
+
+## Unorganised Notes
+- `image_source_service/ink-memories-image-source.service` has a few things that you should consider tweaking:
+    - Album name.
+    - Mount point.
+- `ls ~/Pictures/InkMemories | grep -Ei '\.(jpg|jpeg|png)$'` to find all image files in the shared album.
+
+
+To make the screen display a specific image: `cd displayer_serviceescripts` and `python display_image.py $IMAGE_FILE_PATH`.
 
