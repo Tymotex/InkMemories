@@ -69,3 +69,6 @@ The solution chosen in this project is to crop the center.
 To make the screen display a specific image: `cd displayer_serviceescripts` and `python display_image.py $IMAGE_FILE_PATH`.
 
 - To run test, run `python -m unittest discover tests` from the `displayer_service` directory.
+
+- Add setup instructions:
+    - Tweak the image source dir in display_config.

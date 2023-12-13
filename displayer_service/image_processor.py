@@ -33,7 +33,6 @@ def determine_central_crop_coordinates(image_width_px, image_height_px, crop_asp
 def central_crop(image, aspect_ratio):
     """Returns the central cropped image of the given image.
     """
-    print("ASPECT RATIO: " + str(aspect_ratio))
     image_width_px, image_height_px = image.size
     crop_coordinates = determine_central_crop_coordinates(image_width_px, image_height_px, aspect_ratio)
     return image.crop(crop_coordinates)

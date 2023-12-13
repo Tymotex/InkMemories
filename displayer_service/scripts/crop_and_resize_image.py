@@ -5,11 +5,6 @@ from PIL import Image
 from pathlib import Path
 
 
-PATH = os.path.dirname(__file__)
-DISPLAY_WIDTH_PX = 600
-DISPLAY_HEIGHT_PX = 488
-
-# TODO: This is good to unit test.
 def determine_central_crop_coordinates(image_width_px, image_height_px, crop_aspect_ratio):
     """Determine cropping box coordinates.
     
@@ -41,29 +36,3 @@ def central_crop(image, aspect_ratio):
     image_width_px, image_height_px = image.size
     crop_coordinates = determine_central_crop_coordinates(image_width_px, image_height_px, aspect_ratio)
     return image.crop(crop_coordinates)
-
-
-def resize_to_resolution(image, width_px, height_px):
-    """Resizes the given photo to the display's resolution.
-
-    Resizing may mess up the aspect ratio. Crop the image according to the eInk
-    display's aspect ratio before resizing the image.
-    """
-    size = (width_px, height_px)
-    return image.resize(size)
-
-if __name__ == "__main__":
-    image_path = input('Please enter an image file path: ')
-
-    # Proessing the image.
-    img = Image.open(os.path.join(PATH, image_path))
-    cropped_img = central_crop(img, DISPLAY_WIDTH_PX / DISPLAY_HEIGHT_PX)
-    resized_img = resize_to_resolution(cropped_img, DISPLAY_WIDTH_PX, DISPLAY_HEIGHT_PX)
-
-    # Saving the output image.
-    Path("./processed-images").mkdir(parents=True, exist_ok=True)
-    output_image_path = f"./processed-images/{os.path.basename(image_path)}"
-    with open(f"./processed-images/{os.path.basename(image_path)}", "wb") as processed_img:
-        resized_img.save(processed_img)
-
-    print(f"Wrote: '{output_image_path}'")

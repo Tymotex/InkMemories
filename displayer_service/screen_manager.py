@@ -7,27 +7,27 @@ from inky.auto import auto
 from inky import Inky_Impressions_7
 from pathlib import Path
 import image_retriever
+import display_config
 import shutil
 import time
 import image_processor
 
 
 PATH = os.path.dirname(__file__)
-
-# TODO: Add validation that such a path exists, otherwise create it.
-IMAGE_SOURCE_PATH = "/home/pi/Pictures/InkMemories" # TODO: Ideally this should be parameterised in the config.
-
-IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'] # TODO: Parameterisable?
-CURRENT_IMAGE_PATH = 'current_image.png' # TODO: Cater for other extensions.
-
-DISPLAY_WIDTH_PX = 600  # TODO: Parameterisable?
-DISPLAY_HEIGHT_PX = 488
+CURRENT_IMAGE_PATH = 'current_image.png'
+DISPLAY_CONFIG_FILE_PATH = './display_config.json'
 
 
 class ScreenManager:
+    display_config = None
+
     def __init__(self):
         self.initialise_eink_display()
-        # TODO: Create instance of DisplayConfig.
+        self.initialise_display_config()
+    
+    def initialise_display_config(self):
+        print("Initialising Display Config.")
+        self.display_config = display_config.DisplayConfig(DISPLAY_CONFIG_FILE_PATH)
 
     def initialise_eink_display(self):
         try:
@@ -45,10 +45,11 @@ class ScreenManager:
         # Fetch the paths of all the images.
         print("Fetching all images...")
         all_images = []
-        for image_basename in os.listdir(IMAGE_SOURCE_PATH):
+        image_src_dir = self.display_config.config['display']['image_source_dir']
+        for image_basename in os.listdir(image_src_dir):
             _, file_extension = os.path.splitext(image_basename)
-            image_path = os.path.join(IMAGE_SOURCE_PATH, image_basename)
-            if file_extension.lower() in IMAGE_EXTENSIONS:
+            image_path = os.path.join(image_src_dir, image_basename)
+            if file_extension.lower() in self.display_config.config['display']['allowed_image_extensions']:
                 print("Found an image: " + image_path)
                 all_images.append(image_path)
 
@@ -67,10 +68,6 @@ class ScreenManager:
         # Saving the output image.
         if not os.path.exists("./processed-images"):
             os.makedirs("./processed-images")
-        # TODO: make this path more robust.
-        # TODO: Let's stop saving processed-images, or limit the amount that's saved to save space.
-        with open("./processed-images/" + os.path.basename(chosen_image_file_path), "wb") as processed_img:
-            img.save(processed_img)
 
         # Writing the image to the screen.
         self.eink_display.set_image(img)
@@ -90,5 +87,4 @@ if __name__ == "__main__":
     # Kick off a background thread that regularly 
     screen_manager.set_random_image()
 
-# TODO: When main thread execution reaches here, if there are still running
-#       threads, will the main thread be blocked on terminating the program?
+# TODO: When main thread execution reaches here, if there are still running threads, will the main thread be blocked on terminating the program?
