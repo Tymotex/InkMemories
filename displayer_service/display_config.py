@@ -7,7 +7,7 @@ class DisplayConfig():
     # TODO: Make the config take on default values. Could do a dict merge with the dict read from the JSON.
     config = {
         "display": {
-            # TODO: Validate: this should never be below 120 secs.
+            # TODO: Validate: this should always be >0
             "refresh_period_secs": 86400,
             "allowed_image_extensions": [".jpg", ".jpeg", ".png"],
             # TODO: Required fields like this should be validated to be set to an existent directory on program startup and log on failure.

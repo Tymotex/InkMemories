@@ -11,6 +11,7 @@ import display_config
 import shutil
 import time
 import image_processor
+import threading
 
 
 PATH = os.path.dirname(__file__)
@@ -39,19 +40,28 @@ class ScreenManager:
         except NotImplementedError:
             pass
 
+    def refresh_in_background(self):
+        while True:
+            print(f"Attempting to set a new random image.")
+            self.set_random_image()
+            time.sleep(self.display_config.config['display']['refresh_period_secs'])
+
     def set_random_image(self):
         """Sets a new random image chosen from the images source.
         """
         # Fetch the paths of all the images.
-        print("Fetching all images...")
         all_images = []
         image_src_dir = self.display_config.config['display']['image_source_dir']
+        print(f"Fetching all images in {image_src_dir}.")
+        
+        images_found = 0
         for image_basename in os.listdir(image_src_dir):
             _, file_extension = os.path.splitext(image_basename)
             image_path = os.path.join(image_src_dir, image_basename)
             if file_extension.lower() in self.display_config.config['display']['allowed_image_extensions']:
-                print("Found an image: " + image_path)
+                images_found += 1
                 all_images.append(image_path)
+        print(f"Found {images_found} images.")
 
         # Randomly pick an image from all the images.
         chosen_image_file_path = random.choice(all_images)
@@ -65,13 +75,11 @@ class ScreenManager:
         img = image_processor.central_crop(img,  width / height)
         img = img.resize(self.eink_display.resolution)
 
-        # Saving the output image.
-        if not os.path.exists("./processed-images"):
-            os.makedirs("./processed-images")
-
         # Writing the image to the screen.
         self.eink_display.set_image(img)
         self.eink_display.show()
+
+        print(f"Done writing image {chosen_image_file_path}.")
 
     def shutdown_pi(self):
         """
@@ -84,7 +92,15 @@ if __name__ == "__main__":
     # Initialise the ScreenManager.
     screen_manager = ScreenManager()
     
-    # Kick off a background thread that regularly 
-    screen_manager.set_random_image()
+    # Create a thread for the set_random_image function
+    # Note: daemon threads automatically terminate when the program does.
+    thread = threading.Thread(target=screen_manager.refresh_in_background, daemon=True)
+    thread.start()
+
+    # Block the main thread until the user interrupts the program
+    try:
+        thread.join()
+    except KeyboardInterrupt:
+        print("Exiting program...")
 
 # TODO: When main thread execution reaches here, if there are still running threads, will the main thread be blocked on terminating the program?
