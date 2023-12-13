@@ -37,13 +37,3 @@ def central_crop(image, aspect_ratio):
     image_width_px, image_height_px = image.size
     crop_coordinates = determine_central_crop_coordinates(image_width_px, image_height_px, aspect_ratio)
     return image.crop(crop_coordinates)
-
-
-def resize_to_resolution(image, width_px, height_px):
-    """Resizes the given photo to the display's resolution.
-
-    Resizing may mess up the aspect ratio. Crop the image according to the eInk
-    display's aspect ratio before resizing the image.
-    """
-    size = (width_px, height_px)
-    return image.resize(size)

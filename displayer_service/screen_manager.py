@@ -62,7 +62,7 @@ class ScreenManager:
         # Pre-process the image.
         width, height = self.eink_display.resolution
         img = image_processor.central_crop(img,  width / height)
-        img = image_processor.resize_to_resolution(img, width, height) 
+        img = img.resize(self.eink_display.resolution)
 
         # Saving the output image.
         if not os.path.exists("./processed-images"):
@@ -76,11 +76,11 @@ class ScreenManager:
         self.eink_display.set_image(img)
         self.eink_display.show()
 
-    def is_valid_image(self):
+    def shutdown_pi(self):
         """
         """
+        # TODO:
         pass
-        # TODO: Python code should all be type annotated.
 
 
 if __name__ == "__main__":
