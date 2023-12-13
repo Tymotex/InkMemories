@@ -84,8 +84,8 @@ class ScreenManager:
     def shutdown_pi(self):
         """
         """
-        # TODO:
-        pass
+        # print("SHUTTING DOWN!")
+        # os.system('systemctl poweroff')
 
 
 if __name__ == "__main__":

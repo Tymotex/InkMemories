@@ -72,3 +72,11 @@ To make the screen display a specific image: `cd displayer_serviceescripts` and 
 
 - Add setup instructions:
     - Tweak the image source dir in display_config.
+- Ink Memories main daemon setup instructions:
+    - cp ink-memories-displayer.service to $HOME/.config/systemd/user
+    - systemctl --user enable ink-memories-displayer.service
+    - systemctl --user start ink-memories-displayer.service
+    - NOTE: Currently very fragile because it expects the working directory to be /home/pi/InkMemories/displayer_service.
+- Add to usage instructions: use `systemctl --user $COMMAND ink-memories-displayer.service` to start/stop the main daemon.
+- Add to usage instructions: need to run the script as superuser so that the shutdown button doesn't require prompt.
+
