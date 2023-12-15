@@ -60,7 +60,7 @@ The solution chosen in this project is to crop the center.
 ---
 
 ## Unorganised Notes
-- `image_source_service/ink-memories-image-source.service` has a few things that you should consider tweaking:
+- `ink-memories-image-source.service` has a few things that you should consider tweaking:
     - Album name.
     - Mount point.
 - `ls ~/Pictures/InkMemories | grep -Ei '\.(jpg|jpeg|png)$'` to find all image files in the shared album.

@@ -1,5 +1,5 @@
 import unittest
-from image_processor import determine_central_crop_coordinates, central_crop
+from displayer_service.common.image_processor import determine_central_crop_coordinates, central_crop
 
 class TestImageProcessorDetermineCropCoordinates(unittest.TestCase):
     def test_determine_central_crop_coordinates_wide(self):
