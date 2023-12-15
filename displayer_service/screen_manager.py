@@ -2,15 +2,16 @@
 
 import os
 import random
-from PIL import Image
-from inky.auto import auto
-from inky import Inky_Impressions_7
-from pathlib import Path
-import image_retriever
 import display_config
 import shutil
 import time
 import image_processor
+from PIL import Image
+from inky.auto import auto
+from inky import Inky_Impressions_7
+from pathlib import Path
+
+
 import threading
 
 
@@ -25,10 +26,11 @@ class ScreenManager:
     def __init__(self):
         self.initialise_eink_display()
         self.initialise_display_config()
-    
+
     def initialise_display_config(self):
         print("Initialising Display Config.")
-        self.display_config = display_config.DisplayConfig(DISPLAY_CONFIG_FILE_PATH)
+        self.display_config = display_config.DisplayConfig(
+            DISPLAY_CONFIG_FILE_PATH)
 
     def initialise_eink_display(self):
         try:
@@ -41,10 +43,12 @@ class ScreenManager:
             pass
 
     def refresh_in_background(self):
+        image_refresh_period_secs = self.display_config.config['display']['refresh_period_secs']
         while True:
             print(f"Attempting to set a new random image.")
             self.set_random_image()
-            time.sleep(self.display_config.config['display']['refresh_period_secs'])
+            print(f"Waiting for {image_refresh_period_secs} seconds.")
+            time.sleep(image_refresh_period_secs)
 
     def set_random_image(self):
         """Sets a new random image chosen from the images source.
@@ -53,7 +57,7 @@ class ScreenManager:
         all_images = []
         image_src_dir = self.display_config.config['display']['image_source_dir']
         print(f"Fetching all images in {image_src_dir}.")
-        
+
         images_found = 0
         for image_basename in os.listdir(image_src_dir):
             _, file_extension = os.path.splitext(image_basename)
@@ -67,7 +71,7 @@ class ScreenManager:
         chosen_image_file_path = random.choice(all_images)
         print("Chose this image: " + chosen_image_file_path)
 
-        shutil.copy(chosen_image_file_path, CURRENT_IMAGE_PATH)  
+        shutil.copy(chosen_image_file_path, CURRENT_IMAGE_PATH)
         img = Image.open(CURRENT_IMAGE_PATH)
 
         # Pre-process the image.
@@ -91,10 +95,11 @@ class ScreenManager:
 if __name__ == "__main__":
     # Initialise the ScreenManager.
     screen_manager = ScreenManager()
-    
+
     # Create a thread for the set_random_image function
     # Note: daemon threads automatically terminate when the program does.
-    thread = threading.Thread(target=screen_manager.refresh_in_background, daemon=True)
+    thread = threading.Thread(
+        target=screen_manager.refresh_in_background, daemon=True)
     thread.start()
 
     # Block the main thread until the user interrupts the program
@@ -102,5 +107,6 @@ if __name__ == "__main__":
         thread.join()
     except KeyboardInterrupt:
         print("Exiting program...")
+
 
 # TODO: When main thread execution reaches here, if there are still running threads, will the main thread be blocked on terminating the program?

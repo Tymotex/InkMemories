@@ -7,7 +7,7 @@ from pathlib import Path
 
 def determine_central_crop_coordinates(image_width_px, image_height_px, crop_aspect_ratio):
     """Determine cropping box coordinates.
-    
+
     Returns a 4-tuple for the upper left corner (x1, y1) and lower right corner
     (x2, y2).
     """
@@ -34,5 +34,6 @@ def central_crop(image, aspect_ratio):
     """Returns the central cropped image of the given image.
     """
     image_width_px, image_height_px = image.size
-    crop_coordinates = determine_central_crop_coordinates(image_width_px, image_height_px, aspect_ratio)
+    crop_coordinates = determine_central_crop_coordinates(
+        image_width_px, image_height_px, aspect_ratio)
     return image.crop(crop_coordinates)

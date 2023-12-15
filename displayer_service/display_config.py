@@ -36,5 +36,3 @@ class DisplayConfig():
             print(f"Error decoding JSON in '{config_file_path}': {e}")
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
-        
-

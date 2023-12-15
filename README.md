@@ -80,3 +80,5 @@ To make the screen display a specific image: `cd displayer_serviceescripts` and 
 - Add to usage instructions: use `systemctl --user $COMMAND ink-memories-displayer.service` to start/stop the main daemon.
 - Add to usage instructions: need to run the script as superuser so that the shutdown button doesn't require prompt.
 
+- This project uses [pre-commit](https://pre-commit.com) for Git hooks. In this project, pre-commit will execute `autopep8` to format the Python code to conform to PEP 8.
+    Add to setup instructions: `pre-commit install`.
