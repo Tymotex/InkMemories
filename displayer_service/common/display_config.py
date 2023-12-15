@@ -1,4 +1,6 @@
+import sys
 import json
+from logging import Logger
 
 
 class DisplayConfig():
@@ -11,28 +13,38 @@ class DisplayConfig():
             "refresh_period_secs": 86400,
             "allowed_image_extensions": [".jpg", ".jpeg", ".png"],
             # TODO: Required fields like this should be validated to be set to an existent directory on program startup and log on failure.
-            "image_source_dir": ""
+            "image_source_dir": "~/Pictures"
         },
         "logging": {
-            "log_file_path": "~/.ink-memories-log"
+            "log_file_path": ".ink-memories-log"
         }
     }
 
-    def __init__(self, config_file_path):
-        self.extract_config_from_file(config_file_path)
+    def __init__(self, logger: Logger, config_file_path = None):
+        self.logger = logger
+
+        # If a config file is specified, override defaults.
+        if config_file_path:
+            self.extract_config_from_file(config_file_path)
+        else:
+            self.logger.warning('No config file specified.')
 
     def extract_config_from_file(self, config_file_path):
         try:
             with open(config_file_path, 'r') as file:
                 display_config_dict = json.load(file)
-            print("Successfully loaded display_config.json.")
-            print(json.dumps(display_config_dict, indent=4))
+            self.logger.info("Successfully loaded display_config.json.")
+            self.logger.info(json.dumps(display_config_dict, indent=4))
             merged_config = self.config.copy()
             merged_config.update(display_config_dict)
             self.config = merged_config
+            # TODO: Since the logger is part of the exception hook, maybe these `except` blocks are unnecessary.
         except FileNotFoundError:
-            print(f"Error: File '{config_file_path}' not found.")
+            self.logger.critical(f"Error: File '{config_file_path}' not found.")
+            sys.exit(1)
         except json.JSONDecodeError as e:
-            print(f"Error decoding JSON in '{config_file_path}': {e}")
+            self.logger.critical(f"Error decoding JSON in '{config_file_path}': {e}")
+            sys.exit(1)
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+            self.logger.critical(f"An unexpected error occurred: {e}")
+            sys.exit(1)

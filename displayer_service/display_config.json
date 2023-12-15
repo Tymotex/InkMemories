@@ -5,6 +5,6 @@
         "image_source_dir": "/home/pi/Pictures/InkMemories"
     },
     "logging": {
-        "log_file_path": "~/.ink-memories-log"
+        "log_file_path": ".ink-memories-log"
     }
 }

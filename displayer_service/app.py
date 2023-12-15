@@ -1,5 +1,7 @@
-import threading
 import common.screen_manager
+import logging
+import threading
+
 
 if __name__ == "__main__":
     # Initialise the ScreenManager.
@@ -15,7 +17,4 @@ if __name__ == "__main__":
     try:
         thread.join()
     except KeyboardInterrupt:
-        print("Exiting program...")
-
-
-# TODO: When main thread execution reaches here, if there are still running threads, will the main thread be blocked on terminating the program?
+        logging.info("Exiting program...")
