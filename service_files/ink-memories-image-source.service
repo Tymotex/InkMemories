@@ -5,10 +5,9 @@ After=network-online.target
 
 [Service]
 Type=notify
-ExecStartPre=mkdir -p {{IMAGE_SRC_DIR}}
 ExecStart= \
   /usr/bin/rclone mount \
-    --config=%h/.config/rclone/rclone.conf \
+    --config={{HOME_DIR}}/.config/rclone/rclone.conf \
     --vfs-cache-mode writes \
     --vfs-cache-max-size 100M \
     --umask 022 \

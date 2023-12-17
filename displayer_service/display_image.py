@@ -4,7 +4,7 @@ import os
 import sys
 from PIL import Image
 from inky.auto import auto
-import crop_and_resize_image
+from common import image_processor
 
 
 PATH = os.path.dirname(__file__)
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     filename = sys.argv[1]
     img = Image.open(os.path.join(PATH, filename))
     width, height = inky_display.resolution
-    img = crop_and_resize_image.central_crop(img, width / height)
+    img = image_processor.central_crop(img, width / height)
     img = img.resize(inky_display.resolution)
 
     # Display the logo image

@@ -6,7 +6,6 @@ Requires=ink-memories-image-source.service
 [Service]
 WorkingDirectory={{INK_MEMORIES_ROOT}}/displayer_service
 ExecStart=sudo python app.py
-Restart=always
 
 [Install]
 WantedBy=multi-user.target
