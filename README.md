@@ -3,6 +3,8 @@
 Ink Memories is a Raspberry Pi eInk project that fetches images from an album in
 Google Photos and displays them to the eInk screen.
 
+https://github.com/Tymotex/InkMemories/assets/54927071/7238f156-209b-4a7c-9688-9d730fd1a071
+
 ## Table of Contents
 - [Components](#components)
 - [Usage Notes](#usage-notes)
