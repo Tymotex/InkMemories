@@ -5,15 +5,15 @@ After=network-online.target
 
 [Service]
 Type=notify
-ExecStartPre=mkdir -p %h/Pictures/InkMemories
+ExecStartPre=mkdir -p {{IMAGE_SRC_DIR}}
 ExecStart= \
   /usr/bin/rclone mount \
     --config=%h/.config/rclone/rclone.conf \
     --vfs-cache-mode writes \
     --vfs-cache-max-size 100M \
     --umask 022 \
-    GooglePhotos:shared-album/🥑🍉 %h/Pictures/InkMemories
-ExecStop=/bin/fusermount -u %h/Pictures/InkMemories
+    GooglePhotos:shared-album/{{SHARED_ALBUM_NAME}} {{IMAGE_SRC_DIR}}
+ExecStop=/bin/fusermount -u {{IMAGE_SRC_DIR}}
 
 [Install]
 WantedBy=default.target

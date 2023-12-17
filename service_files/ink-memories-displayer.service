@@ -4,8 +4,8 @@ After=ink-memories-image-source.service
 Requires=ink-memories-image-source.service
 
 [Service]
-WorkingDirectory=/home/pi/InkMemories/displayer_service
-ExecStart=/usr/bin/python screen_manager.py
+WorkingDirectory={{INK_MEMORIES_ROOT}}/displayer_service
+ExecStart=sudo python app.py
 Restart=always
 
 [Install]
