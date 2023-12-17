@@ -1,7 +1,16 @@
 # InkMemories
 
-InkMemories is a Raspberry Pi eInk project that fetches images from an album in
+Ink Memories is a Raspberry Pi eInk project that fetches images from an album in
 Google Photos and displays them to the eInk screen.
+
+## Table of Contents
+- [Components](#components)
+- [Usage Notes](#usage-notes)
+- [Setup Instructions](#setup-instructions)
+- [How it works](#how-it-works)
+    - [Google Photos API](#google-photos-api)
+    - [Image Processing](#image-processing)
+- [Potential Features & Improvements](#potential-features--improvements)
 
 ## Components
 - Raspberry Pi Zero W and its power supply.
@@ -10,7 +19,7 @@ Google Photos and displays them to the eInk screen.
 
 ## Usage Notes
 
-Follow the ['Setup Instructions'](#setup-instructions) to begin running InkMemories.
+Follow the ['Setup Instructions'](#setup-instructions) to begin running Ink Memories.
 
 - Press the top left button (labeled 'A') to force refresh a new image.
 - Press the bottom left button (labeled 'D') to gracefully shut down the system.
@@ -48,7 +57,7 @@ These instructions assume that you have set up Raspbian OS.
         sudo systemctl status ink-memories-displayer.service
         ```
 
-    - Manage InkMemories with `systemctl`:
+    - Manage Ink Memories with `systemctl`:
 
         ```sh
         # Kill the service.

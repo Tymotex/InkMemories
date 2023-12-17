@@ -1,6 +1,6 @@
 {
     "display": {
-        "refresh_period_secs": 20,
+        "refresh_period_secs": 3600,
         "allowed_image_extensions": [".jpg", ".jpeg", ".png"],
         "image_source_dir": "/home/pi/Pictures/InkMemories"
     },
