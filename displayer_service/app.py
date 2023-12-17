@@ -13,8 +13,6 @@ if __name__ == "__main__":
         target=display.refresh_in_background, daemon=True)
     image_refresh_thread.start()
 
-    # Create a thread for handling button presses at any time.
-
     # Block the main thread until the user interrupts the program
     try:
         image_refresh_thread.join()

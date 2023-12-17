@@ -35,6 +35,8 @@ Follow the ['Setup Instructions'](#setup-instructions) to begin running Ink Memo
 
 > Note: This project needs to be run with root privileges in order to headlessly shut down the Pi. Without root privileges, the process will prompt for a password.
 
+- To configure display parameters, such as the time taken between automatic image refreshes, modify `displayer_service/display_config.json`, then reload the displayer service with `sudo systemctl restart ink-memories-displayer` for the config changes to be applied.
+
 ## Setup Instructions
 These instructions assume that you have set up Raspbian OS.
 - In `raspi-config`, enable I2C and SPI. This is necessary for getting the e-ink display to work.
@@ -136,6 +138,7 @@ This was a rushed project. Here are some ideas for how to improve upon the MVP:
 - Photos queueing and rotations (similar to a Spotify music queue and playlist).
 - Prevent randomised picking algorithm from re-picking the same photo as last
   time.
+- Refresh the countdown for the image refresh when manually invoked.
 - Cache photos fetched from Google Photos API (this prevents being bottlenecked by network and should improve performance a lot, *and* it prevents the unlikely situation of hitting Google Photos' free tier quota).
 - Clean up tech debt in the codebase and have more exhaustive unit test suites.
 - Build and distribute an executable binary instead of directly invoking the Python interpreter. Alternatively, dockerise the project and run these services as containers.
