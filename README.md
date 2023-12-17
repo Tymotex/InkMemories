@@ -82,3 +82,11 @@ To make the screen display a specific image: `cd displayer_serviceescripts` and 
 
 - This project uses [pre-commit](https://pre-commit.com) for Git hooks. In this project, pre-commit will execute `autopep8` to format the Python code to conform to PEP 8.
     Add to setup instructions: `pre-commit install`.
+
+- Button presses:
+    - A - refresh the image on the pi to a random one.
+    - B - unused.
+    - C - unused.
+    - D - shut down the pi
+
+- This project needs to be run with root privileges in order to headlessly shut down the Pi. Without root privileges, the process will prompt for a password.

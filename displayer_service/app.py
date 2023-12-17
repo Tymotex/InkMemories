@@ -7,14 +7,16 @@ if __name__ == "__main__":
     # Initialise the ScreenManager.
     display = common.screen_manager.ScreenManager()
 
-    # Create a thread for the set_random_image function
+    # Create a thread for the regularly refreshing the image.
     # Note: daemon threads automatically terminate when the program does.
-    thread = threading.Thread(
+    image_refresh_thread = threading.Thread(
         target=display.refresh_in_background, daemon=True)
-    thread.start()
+    image_refresh_thread.start()
+
+    # Create a thread for handling button presses at any time.
 
     # Block the main thread until the user interrupts the program
     try:
-        thread.join()
+        image_refresh_thread.join()
     except KeyboardInterrupt:
         logging.info("Exiting program...")

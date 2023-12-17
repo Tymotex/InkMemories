@@ -38,7 +38,6 @@ class DisplayConfig():
             merged_config = self.config.copy()
             merged_config.update(display_config_dict)
             self.config = merged_config
-            # TODO: Since the logger is part of the exception hook, maybe these `except` blocks are unnecessary.
         except FileNotFoundError:
             self.logger.critical(f"Error: File '{config_file_path}' not found.")
             sys.exit(1)
