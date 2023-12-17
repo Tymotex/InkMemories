@@ -8,6 +8,8 @@ fi
 #===========================================================================
 #                            Configuring rclone.
 #===========================================================================
+echo "Configuring RClone."
+
 # Installing RClone.
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
@@ -17,13 +19,20 @@ rclone config
 #===========================================================================
 #                            Setting up dependencies
 #===========================================================================
+echo "Installing dependencies."
 
 sudo pip install -r displayer_service/requirements.txt
 pre-commit install
 
+# Inky throws an error, 'libopenblas.so.0: cannot open shared object file: No such file or directory'.
+# Installing this fixes it.
+sudo apt-get install libopenblas-dev 
+
 #===========================================================================
 #                  Configuring Ink Memories to run as a daemon
 #===========================================================================
+echo "Configuring Ink Memories to run as a daemon."
+
 # Interpolate in user-supplied variables into the .service files under
 # /etc/systemd/system.
 read -p "Enter image source directory path (where the image files to display are located at): " image_src_dir

@@ -41,7 +41,6 @@ Follow the ['Setup Instructions'](#setup-instructions) to begin running Ink Memo
 These instructions assume that you have set up Raspbian OS.
 - In `raspi-config`, enable I2C and SPI. This is necessary for getting the e-ink display to work.
 - Set a hostname that you'd like with `cat $NEW_HOSTNAME >> /etc/hostname`.
-- In your router's configuration either disable DHCP or reserve a static IP for the Raspberry Pi.
 
 1. Clone this repo: `git clone https://github.com/Tymotex/InkMemories.git`.
 2. Set up Google API credentials.
@@ -49,8 +48,9 @@ These instructions assume that you have set up Raspbian OS.
     1. Set up a new project.
     2. Enable Google Photos API.
     3. Request an OAuth 2.0 client ID. As a result, you'll get a client ID and client secret that you'll need to supply `rclone` later.
-3. Run `setup.sh` to be taken through an interactive setup of rclone, and the
+3. Run `sudo setup.sh` to be taken through an interactive setup of rclone, and the
    `.service` files to run the Image Source and Displayer services.
+    - Set the remote name to `GooglePhotos`.
     - This should start up the Image Source Service and Displayer Service.
       Verify that they work by running:
 
@@ -73,8 +73,12 @@ These instructions assume that you have set up Raspbian OS.
         Project directory (this repo's root path): /home/pi/InkMemories
         Album name: 🥑🍉
         ```
+    
+    - After the services are running, an image should be displayed after a minute or two.
 
 4. Run unit tests: `pytest` from the `displayer_service` directory.
+5. (Optional) Run the image displayer direcly with `python app.py` in the `displayer_service` directory.
+
 
 ## How it works
 
