@@ -3,6 +3,8 @@
 Ink Memories is a Raspberry Pi eInk project that fetches images from an album in
 Google Photos and displays them to the eInk screen.
 
+https://github.com/Tymotex/InkMemories/assets/54927071/7238f156-209b-4a7c-9688-9d730fd1a071
+
 ## Table of Contents
 - [Components](#components)
 - [Usage Notes](#usage-notes)
@@ -149,3 +151,5 @@ This was a rushed project. Here are some ideas for how to improve upon the MVP:
 - Cache photos fetched from Google Photos API (this prevents being bottlenecked by network and should improve performance a lot, *and* it prevents the unlikely situation of hitting Google Photos' free tier quota).
 - Clean up tech debt in the codebase and have more exhaustive unit test suites.
 - Build and distribute an executable binary instead of directly invoking the Python interpreter. Alternatively, dockerise the project and run these services as containers.
+
+![Showcase image](./assets/demo.jpg)
