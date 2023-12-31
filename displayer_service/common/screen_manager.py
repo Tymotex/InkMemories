@@ -16,12 +16,11 @@ from pathlib import Path
 from typing import Union
 
 from common import image_processor
-from common import image_retriever
 from common.display_config import DisplayConfig
+from common.image_retriever import ImageRetriever
 
 
 PATH = os.path.dirname(__file__)
-CURRENT_IMAGE_PATH = 'current_image.png'
 DISPLAY_CONFIG_FILE_PATH = './display_config.json'
 INITIAL_QUEUE_SIZE = 10
 
@@ -44,6 +43,8 @@ class ScreenManager:
     # Buffer of cached in-memory images.
     image_queue = queue.Queue()
 
+    image_retriever: ImageRetriever
+
     def __init__(self):
         with self.screen_lock:
             self.logger = logging.getLogger(__name__)
@@ -54,9 +55,12 @@ class ScreenManager:
             self.initialise_eink_display()
             self.initialise_pi()
 
+            self.image_retriever = ImageRetriever(
+                self.logger, self.display_config)
+
             # Populate image buffer
-            chosen_images = image_retriever.get_random_images(
-                INITIAL_QUEUE_SIZE, self.display_config, self.logger)
+            chosen_images = self.image_retriever.get_random_images(
+                INITIAL_QUEUE_SIZE)
             map(self.image_queue.put, chosen_images)
 
     def initialise_eink_display(self) -> None:
@@ -130,14 +134,14 @@ class ScreenManager:
 
             self.output_and_queue_image()
 
-            self.logger.info(
-                f"Waiting for {image_refresh_period_secs} seconds.")
+            self.logger.info("Waiting for %s seconds.",
+                             image_refresh_period_secs)
+
             time.sleep(image_refresh_period_secs)
 
     def queue_image(self):
         """Adds a random image to image buffer"""
-        self.image_queue.put(image_retriever.get_random_image(
-            self.display_config, CURRENT_IMAGE_PATH, self.logger))
+        self.image_queue.put(self.image_retriever.get_random_image())
 
     def output_and_queue_image(self):
         """Displays the next image in the image queue, and adds a new image to the queue."""
