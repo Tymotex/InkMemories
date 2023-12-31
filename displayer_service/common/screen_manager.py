@@ -6,6 +6,7 @@ import time
 import sys
 import traceback
 import threading
+import queue
 
 from RPi import GPIO
 from logging import Logger
@@ -22,9 +23,12 @@ from common.display_config import DisplayConfig
 PATH = os.path.dirname(__file__)
 CURRENT_IMAGE_PATH = 'current_image.png'
 DISPLAY_CONFIG_FILE_PATH = './display_config.json'
+INITIAL_QUEUE_SIZE = 10
 
 
 class ScreenManager:
+    """Manages displaying new images to the e-ink display.
+    """
     logger: Logger
     display_config: DisplayConfig
     pins_to_buttons = {
@@ -33,25 +37,35 @@ class ScreenManager:
         16: 'C',
         24: 'D'
     }
-    
+
     # Protects multi-threaded access to the screen.
     screen_lock = threading.Lock()
+
+    # Buffer of cached in-memory images.
+    image_queue = queue.Queue()
 
     def __init__(self):
         with self.screen_lock:
             self.logger = logging.getLogger(__name__)
             self.initialise_display_config()
+            # TODO: make this self.display_config = self.configure_logger().
             self.configure_logger()
 
             self.initialise_eink_display()
             self.initialise_pi()
+
+            # Populate image buffer
+            chosen_images = image_retriever.get_random_images(
+                INITIAL_QUEUE_SIZE, self.display_config, self.logger)
+            map(self.image_queue.put, chosen_images)
 
     def initialise_eink_display(self) -> None:
         """Initialises the e-ink display for usage."""
         try:
             self.eink_display = auto(ask_user=True, verbose=True)
         except TypeError:
-            self.logger.critical("You need to update the Inky library to >= v1.1.0")
+            self.logger.critical(
+                "You need to update the Inky library to >= v1.1.0")
             sys.exit(1)
 
         self.eink_display.set_border(self.eink_display.WHITE)
@@ -62,8 +76,10 @@ class ScreenManager:
 
         Expects that the display config has already been populated.
         """
-        formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler = logging.FileHandler(self.display_config.config['logging']['log_file_path'])
+        formatter = logging.Formatter(
+            '%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+        file_handler = logging.FileHandler(
+            self.display_config.config['logging']['log_file_path'])
         file_handler.setFormatter(formatter)
 
         self.logger.addHandler(file_handler)
@@ -79,15 +95,18 @@ class ScreenManager:
 
         # Custom exception hook to log unhandled exceptions.
         def custom_exception_hook(exc_type, exc_value, exc_traceback):
-            traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
-            self.logger.exception("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+            traceback.print_exception(
+                exc_type, exc_value, exc_traceback, file=sys.stdout)
+            self.logger.exception("Uncaught exception", exc_info=(
+                exc_type, exc_value, exc_traceback))
             sys.exit(1)
         sys.excepthook = custom_exception_hook
 
     def initialise_display_config(self):
         """Initialises the display config."""
-        self.display_config = DisplayConfig(self.logger, DISPLAY_CONFIG_FILE_PATH)
-    
+        self.display_config = DisplayConfig(
+            self.logger, DISPLAY_CONFIG_FILE_PATH)
+
     def initialise_pi(self):
         """Initialises the Pi's hardware settings."""
         # Set up RPi.GPIO with the "BCM" numbering scheme. This is necessary
@@ -96,25 +115,44 @@ class ScreenManager:
 
         # Buttons connect to ground when pressed, so we should set them up
         # with a "PULL UP", which weakly pulls the input signal to 3.3V.
-        GPIO.setup(list(self.pins_to_buttons.keys()), GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(list(self.pins_to_buttons.keys()),
+                   GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
         for each_pin_num in self.pins_to_buttons.keys():
-            GPIO.add_event_detect(each_pin_num, GPIO.FALLING, self.handle_button_press, bouncetime=250)
+            GPIO.add_event_detect(each_pin_num, GPIO.FALLING,
+                                  self.handle_button_press, bouncetime=250)
 
     def refresh_in_background(self) -> None:
+        """Periodically displays a new image."""
         image_refresh_period_secs = self.display_config.config['display']['refresh_period_secs']
         while True:
-            self.logger.info(f"Attempting to set a new random image.")
-            with self.screen_lock:
-                self.set_random_image()
-            self.logger.info(f"Waiting for {image_refresh_period_secs} seconds.")
+            self.logger.info("Attempting to set a new random image.")
+
+            self.output_and_queue_image()
+
+            self.logger.info(
+                f"Waiting for {image_refresh_period_secs} seconds.")
             time.sleep(image_refresh_period_secs)
 
-    def set_random_image(self):
+    def queue_image(self):
+        """Adds a random image to image buffer"""
+        self.image_queue.put(image_retriever.get_random_image(
+            self.display_config, CURRENT_IMAGE_PATH, self.logger))
+
+    def output_and_queue_image(self):
+        """Displays the next image in the image queue, and adds a new image to the queue."""
+        with self.screen_lock:
+            next_image = self.image_queue.get()
+            self.set_image(next_image)
+
+        # Run as thread to make consecutive A presses instant response.
+        enqueue_thread = threading.Thread(target=self.queue_image)
+        enqueue_thread.start()
+
+    def set_image(self, img):
         """Sets a new random image chosen from the images source.
         """
-        img = image_retriever.get_random_image(self.display_config,
-                                               CURRENT_IMAGE_PATH, self.logger)
+        # TODO: Catch and handle image fetch failure (probably due to network failure, invalid API credentials).
 
         # Pre-process the image.
         width, height = self.eink_display.resolution
@@ -139,16 +177,21 @@ class ScreenManager:
         label = self.pins_to_buttons[pressed_pin]
         if label == 'A':
             self.logger.info("User pressed A. Forcing refresh image.")
-            with self.screen_lock:
-                self.set_random_image()
+            if self.screen_lock.locked():
+                self.logger.info(
+                    "Skipping image refresh because refresh is already underway.")
+                return
+            self.output_and_queue_image()
         elif label == 'B':
-            self.logger.info("User pressed B. Nothing is implemented for this button.")
+            self.logger.info(
+                "User pressed B. Nothing is implemented for this button.")
         elif label == 'C':
-            self.logger.info("User pressed C. Nothing is implemented for this button.")
+            self.logger.info(
+                "User pressed C. Nothing is implemented for this button.")
         elif label == 'D':
             self.logger.info("User pressed D. Shutting down the Pi.")
-            
-            # Only commence shutdown after the image finishes refreshing, 
+
+            # Only commence shutdown after the image finishes refreshing,
             # if it is currently refreshing.
             with self.screen_lock:
                 self.shutdown_pi()
@@ -161,6 +204,7 @@ class ScreenManager:
         """
         self.logger.info("Shutting down!")
         if os.geteuid() != 0:
-            self.logger.error("Failed to shut down because this process is not executing with root privileges.")
+            self.logger.error(
+                "Failed to shut down because this process is not executing with root privileges.")
         else:
             os.system('systemctl poweroff')
