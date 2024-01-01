@@ -43,6 +43,7 @@ class ScreenManager:
     # Buffer of cached in-memory images.
     image_queue = queue.Queue()
 
+    # Utility for retrieving images from the image source.
     image_retriever: ImageRetriever
 
     def __init__(self):
