@@ -33,7 +33,7 @@ Follow the ['Setup Instructions'](#setup-instructions) to begin running Ink Memo
 
 - As a one-off operation, you can make the screen display a specific image with:
   `cd displayer_service` and `python display_image.py $IMAGE_FILE_PATH`.
-  For example: `python display_image.py example-images/ultrawide-wallpaper.png`.
+  For example: `python display_image.py test-images/ultrawide-wallpaper.png`.
 
 > Note: This project needs to be run with root privileges in order to headlessly shut down the Pi. Without root privileges, the process will prompt for a password.
 
