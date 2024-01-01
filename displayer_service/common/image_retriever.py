@@ -1,6 +1,7 @@
 """Provides utilities from fetching images from the image source."""
 import random
 import os
+import shutil
 
 from logging import Logger
 from typing import List
@@ -52,8 +53,6 @@ class ImageRetriever:
 
         # Randomly pick an image from all the images.
         chosen_image_file_path = random.choice(all_images)
-        self.logger.info(f"Chose this image: {chosen_image_file_path}")
-
         return Image.open(chosen_image_file_path)
 
     def get_random_images(self, num_images) -> List[ImageType]:
@@ -65,6 +64,12 @@ class ImageRetriever:
         # Randomly pick an image from all the images.
         chosen_image_paths = random.sample(all_images, num_images)
 
-        return [Image.open(img) for img in chosen_image_paths]
+        images = []
+        for each_image_path in chosen_image_paths:
+            new_path = f"./{os.path.basename(each_image_path)}"
+            shutil.copy(each_image_path, new_path)
+            images.append(Image.open(new_path))
+
+        return images
 
     # TODO(image retrieval error): def get_error_image
