@@ -62,7 +62,8 @@ class ScreenManager:
             # Populate image buffer
             chosen_images = self.image_retriever.get_random_images(
                 INITIAL_QUEUE_SIZE)
-            map(self.image_queue.put, chosen_images)
+            for img in chosen_images:
+                self.image_queue.put(img)
 
     def initialise_eink_display(self) -> None:
         """Initialises the e-ink display for usage."""
@@ -95,7 +96,7 @@ class ScreenManager:
         stream_handler.setLevel(logging.DEBUG)
         stream_handler.setFormatter(formatter)
         root_logger = logging.getLogger()
-        root_logger.setLevel(logging.DEBUG)
+        root_logger.setLevel(logging.INFO)
         root_logger.addHandler(stream_handler)
 
         # Custom exception hook to log unhandled exceptions.
@@ -146,9 +147,15 @@ class ScreenManager:
 
     def output_and_queue_image(self):
         """Displays the next image in the image queue, and adds a new image to the queue."""
+        self.logger.info(
+            "Showing the contents of the image queue (size=%s)...", self.image_queue.qsize())
+        self.logger.info(
+            [img.filename for img in list(self.image_queue.queue)])
+
         with self.screen_lock:
             next_image = self.image_queue.get()
             self.set_image(next_image)
+        self.image_retriever.clean_up_image(next_image)
 
         # Run as thread to make consecutive A presses instant response.
         enqueue_thread = threading.Thread(target=self.queue_image)

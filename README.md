@@ -129,6 +129,9 @@ photographee's faces.)
 
 ## Potential Features & Improvements
 This was a rushed project. Here are some ideas for how to improve upon the MVP:
+- On failure to connect to Google Photos or otherwise, display an error image
+  to prompt the user to troubleshoot. Even better, render an HTML page with
+  instructions and logs.
 - Design a better stand: e.g. one that fits better, secures the display better,
   has engravings, etc.
 - Use an AI model to identify photos containing only human faces and display

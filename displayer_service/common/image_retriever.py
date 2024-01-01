@@ -1,13 +1,18 @@
 """Provides utilities from fetching images from the image source."""
 import random
 import os
+import shutil
 
 from logging import Logger
 from typing import List
+from pathlib import Path
 from PIL import Image
 from PIL.Image import Image as ImageType
 
 from common.display_config import DisplayConfig
+
+
+IMAGE_QUEUE_DIR = "tmp-images"
 
 
 class ImageRetriever:
@@ -18,6 +23,13 @@ class ImageRetriever:
     def __init__(self, logger, display_config):
         self.logger = logger
         self.display_config = display_config
+
+        # Temporary directory to store local copies of the images in the image
+        # buffer.
+        Path(f"./{IMAGE_QUEUE_DIR}").mkdir(parents=True, exist_ok=True)
+
+    def __del__(self):
+        shutil.rmtree(f"./{IMAGE_QUEUE_DIR}", ignore_errors=True)
 
     def get_path_of_all_images(self) -> List[str]:
         """Returns a list of the paths of all the available images from image source."""
@@ -52,9 +64,11 @@ class ImageRetriever:
 
         # Randomly pick an image from all the images.
         chosen_image_file_path = random.choice(all_images)
-        self.logger.info(f"Chose this image: {chosen_image_file_path}")
 
-        return Image.open(chosen_image_file_path)
+        local_image_copy_path = self.create_local_image_copy(
+            chosen_image_file_path)
+
+        return Image.open(local_image_copy_path)
 
     def get_random_images(self, num_images) -> List[ImageType]:
         """Retrieves `num_images` number of random images from the image source."""
@@ -65,6 +79,31 @@ class ImageRetriever:
         # Randomly pick an image from all the images.
         chosen_image_paths = random.sample(all_images, num_images)
 
-        return [Image.open(img) for img in chosen_image_paths]
+        images = []
+        for each_image_path in chosen_image_paths:
+            local_image_copy_path = self.create_local_image_copy(
+                each_image_path)
+            images.append(Image.open(local_image_copy_path))
+
+        return images
+
+    def create_local_image_copy(self, image_path) -> str:
+        """Locally clone the image from the image source (Google Photos).
+
+        This is necessary because PIL fails to load the image directly from the
+        image files in the rclone mounted directory.
+        """
+        local_image_copy_path = f"./{IMAGE_QUEUE_DIR}/{os.path.basename(image_path)}"
+        shutil.copy(image_path, local_image_copy_path)
+
+        return local_image_copy_path
+
+    def clean_up_image(self, img: ImageType):
+        """Cleans up temporary local copy of the given image."""
+        if not img:
+            return
+        if not os.path.exists(img.filename):
+            return
+        os.remove(img.filename)
 
     # TODO(image retrieval error): def get_error_image
