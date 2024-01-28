@@ -4,7 +4,4 @@
         "allowed_image_extensions": [".jpg", ".jpeg", ".png"],
         "image_source_dir": "./test-images"
     },
-    "logging": {
-        "log_file_path": ".ink-memories-log"
-    }
 }

@@ -23,6 +23,8 @@ from common.image_retriever import ImageRetriever
 PATH = os.path.dirname(__file__)
 DISPLAY_CONFIG_FILE_PATH = './display_config.json'
 INITIAL_QUEUE_SIZE = 10
+LOG_FILE_PATH = './.ink-memories-log'
+DEBUG_SCREEN_IMAGE_PATH = './debug-screen.png'
 
 
 class ScreenManager:
@@ -45,6 +47,12 @@ class ScreenManager:
 
     # Utility for retrieving images from the image source.
     image_retriever: ImageRetriever
+
+    # Whether the user has turned on debug mode. In debug mode, all normal image
+    # refreshing halts and a troubleshooting screen is displayed.
+    # This is used to prevent the normal image refreshing thread from
+    # pre-empting the troubleshooting screen.
+    is_debug_mode = False
 
     def __init__(self):
         with self.screen_lock:
@@ -84,8 +92,7 @@ class ScreenManager:
         """
         formatter = logging.Formatter(
             '%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler = logging.FileHandler(
-            self.display_config.config['logging']['log_file_path'])
+        file_handler = logging.FileHandler(LOG_FILE_PATH)
         file_handler.setFormatter(formatter)
 
         self.logger.addHandler(file_handler)
@@ -147,17 +154,20 @@ class ScreenManager:
 
     def output_and_queue_image(self):
         """Displays the next image in the image queue, and adds a new image to the queue."""
+        if self.is_debug_mode:
+            self.logger.info("In debug mode. Skipping image refresh.")
+            return
+
         self.logger.info(
-            "Showing the contents of the image queue (size=%s)...", self.image_queue.qsize())
-        self.logger.info(
-            [img.filename for img in list(self.image_queue.queue)])
+            "Image queue size is %s.", self.image_queue.qsize())
 
         with self.screen_lock:
             next_image = self.image_queue.get()
             self.set_image(next_image)
         self.image_retriever.clean_up_image(next_image)
 
-        # Run as thread to make consecutive A presses instant response.
+        # Queue image in a separate thread to make consecutive A presses
+        # produce an instant response.
         enqueue_thread = threading.Thread(target=self.queue_image)
         enqueue_thread.start()
 
@@ -177,6 +187,29 @@ class ScreenManager:
 
         self.logger.info("Done writing image.")
 
+    def show_troubleshooting_screen(self):
+        """Displays the debug mode screen.
+
+        When the user presses B, debug mode will be flipped on and the
+        troubleshooting screen will show.
+        This screen shows some of the most recent logs.
+
+        Flipping on debug mode will not pre-empt any in-progress screen
+        refreshes.
+        """
+        if self.screen_lock.locked():
+            self.logger.info(
+                "Attempted to enter debug mode while screen was busy. Skipping.")
+            return
+
+        with self.screen_lock:
+            # Ensuring the image fits into the eink display's resolution.
+            debug_screen_img = Image.open(DEBUG_SCREEN_IMAGE_PATH)
+            debug_screen_img = debug_screen_img.resize(
+                self.eink_display.resolution)
+
+            self.set_image(debug_screen_img)
+
     def handle_button_press(self, pressed_pin):
         """Executes specific actions on button presses.
 
@@ -195,11 +228,18 @@ class ScreenManager:
                 return
             self.output_and_queue_image()
         elif label == 'B':
-            self.logger.info(
-                "User pressed B. Nothing is implemented for this button.")
+            self.is_debug_mode = not self.is_debug_mode
+            self.logger.info("Toggling debug screen %s.",
+                             'on' if self.is_debug_mode else 'off')
+            if self.is_debug_mode:
+                self.show_troubleshooting_screen()
         elif label == 'C':
-            self.logger.info(
-                "User pressed C. Nothing is implemented for this button.")
+            if self.is_debug_mode:
+                self.logger.info("Refreshing the debug screen.")
+                self.show_troubleshooting_screen()
+            else:
+                self.logger.info(
+                    "Attempted to refresh image while not in debug mode. Skipping.")
         elif label == 'D':
             self.logger.info("User pressed D. Shutting down the Pi.")
 

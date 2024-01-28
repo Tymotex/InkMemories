@@ -28,6 +28,9 @@ pre-commit install
 # Installing this fixes it.
 sudo apt-get install libopenblas-dev 
 
+# Chromium is necessary to take headless screenshots of an HTML file.
+sudo apt-get install chromium
+
 #===========================================================================
 #                  Configuring Ink Memories to run as a daemon
 #===========================================================================
@@ -41,7 +44,7 @@ read -p "Enter the name of the shared Google Photos album: " shared_album_name
 
 mkdir -p "${image_src_dir}" 2>&1
 
-for service_file_basename in ink-memories-image-source.service ink-memories-displayer.service; do
+for service_file_basename in ink-memories-image-source.service ink-memories-displayer.service debug-logs-html-snapshotter.service; do
     echo "Making service file, $service_file_basename"
     sed -e "s|{{IMAGE_SRC_DIR}}|${image_src_dir}|g" \
         -e "s|{{INK_MEMORIES_ROOT}}|${ink_memories_root}|g" \

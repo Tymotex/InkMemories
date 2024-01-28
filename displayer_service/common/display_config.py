@@ -10,9 +10,6 @@ DEFAULT_DISPLAY_CONFIG = {
         # TODO: Required fields like this should be validated to be set to an existent directory on program startup and log on failure.
         "image_source_dir": "~/Pictures"
     },
-    "logging": {
-        "log_file_path": ".ink-memories-log"
-    }
 }
 
 

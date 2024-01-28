@@ -3,3 +3,5 @@ __pycache__/
 current_image.png
 .ink-memories-log
 venv/
+debug-screen.png
+debug-screen.html

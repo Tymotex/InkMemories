@@ -1,0 +1,9 @@
+[Unit]
+Description=Ink Memories Error Log HTML Snapshotter
+
+[Service]
+WorkingDirectory={{INK_MEMORIES_ROOT}}/scripts/debug-logs-html-snapshot.sh
+ExecStart=
+
+[Install]
+WantedBy=multi-user.target

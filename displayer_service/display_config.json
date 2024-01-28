@@ -4,7 +4,4 @@
         "allowed_image_extensions": [".jpg", ".jpeg", ".png", ".heic"],
         "image_source_dir": "/home/pi/Pictures/InkMemories"
     },
-    "logging": {
-        "log_file_path": ".ink-memories-log"
-    }
 }
