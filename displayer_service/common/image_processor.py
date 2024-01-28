@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import os
-from PIL import Image
+from PIL import Image, ImageDraw, ExifTags
 from pathlib import Path
 
 
@@ -28,6 +28,37 @@ def determine_central_crop_coordinates(image_width_px, image_height_px, crop_asp
         crop_width_px = image_width_px
         crop_height_px = image_width_px / crop_aspect_ratio
         return (0, (image_height_px - crop_height_px) / 2, image_width_px, (image_height_px + crop_height_px) / 2)
+
+
+def burn_date_into_image(img):
+    """Writes the date the image was taken into the image itself.
+
+    If no date is found, then this function has no effect.
+
+    See https://en.wikipedia.org/wiki/Exif.
+    In the EXIF standard, 306 is the identifier for the 'DateTime' field, which
+    tells you when the photo was taken.
+    """
+    exif_data = img.getexif()
+    if not exif_data:
+        return img
+
+    creation_time = exif_data.get(306)
+    if not creation_time:
+        return img
+
+    # Format the creation date.
+    creation_time = datetime.strptime(creation_time, "%Y:%m:%d %H:%M:%S")
+    formatted_time = creation_time.strftime(
+        "%dth %b, %Y, %I:%M%p").replace(" 0", " ")
+
+    # Burn the text to the bottom right of the image.
+    image_draw = ImageDraw.Draw(img)
+    anchor_position = (590, 438)
+    image_draw.text(anchor_position, formatted_time, fill=(0, 0, 0),
+                    stroke_fill=(255, 255, 255), stroke_width=2, font_size=20,
+                    anchor="rs")
+    return img
 
 
 def central_crop(image, aspect_ratio):
