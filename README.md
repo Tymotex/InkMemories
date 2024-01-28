@@ -127,6 +127,10 @@ photographee's faces.)
 
 ![center crop demonstration](./assets/crop.png)
 
+The image processing module can also extract EXIF data and burn it into the
+image for display. In this case, the `DateTime` field is formatted and displayed
+on each image.
+
 ## Potential Features & Improvements
 This was a rushed project. Here are some ideas for how to improve upon the MVP:
 - On failure to connect to Google Photos or otherwise, display an error image
