@@ -64,16 +64,20 @@ class ScreenManager:
             self.image_retriever = ImageRetriever(
                 self.logger, self.display_config)
 
-            # Populate image buffer
-            try:
-                chosen_images = self.image_retriever.get_random_images(
-                    INITIAL_QUEUE_SIZE)
-                for img in chosen_images:
-                    self.image_queue.put(img)
-            except Exception as e: 
-                self.logger.error(e)
-                # TODO: Initial fetch has failed... Maybe ask the user to restart. 
-                
+            # Populate the image buffer with some intiial images. 
+            # Keep trying until it is populated. 
+            chosen_images = None
+            while chosen_images is None:
+                try:
+                    chosen_images = self.image_retriever.get_random_images(
+                        INITIAL_QUEUE_SIZE)
+                except Exception as e: 
+                    self.logger.error(e)
+                    self.logger.info("Initial population of images has failed. Trying again in 300 seconds.")
+                    time.sleep(300)
+
+            for img in chosen_images:
+                self.image_queue.put(img)
 
     def initialise_eink_display(self) -> None:
         """Initialises the e-ink display for usage."""
