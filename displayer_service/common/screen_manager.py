@@ -65,10 +65,15 @@ class ScreenManager:
                 self.logger, self.display_config)
 
             # Populate image buffer
-            chosen_images = self.image_retriever.get_random_images(
-                INITIAL_QUEUE_SIZE)
-            for img in chosen_images:
-                self.image_queue.put(img)
+            try:
+                chosen_images = self.image_retriever.get_random_images(
+                    INITIAL_QUEUE_SIZE)
+                for img in chosen_images:
+                    self.image_queue.put(img)
+            except Exception as e: 
+                self.logger.error(e)
+                # TODO: Initial fetch has failed... Maybe ask the user to restart. 
+                
 
     def initialise_eink_display(self) -> None:
         """Initialises the e-ink display for usage."""
@@ -152,7 +157,11 @@ class ScreenManager:
 
     def queue_image(self):
         """Adds a random image to image buffer"""
-        self.image_queue.put(self.image_retriever.get_random_image())
+        try:
+            self.image_queue.put(self.image_retriever.get_random_image())
+        except Exception as e:
+            self.logger.error(e)
+            self.logger.info("Failed to queue image. Size of queue: %s", self.image_queue.qsize())
 
     def output_and_queue_image(self):
         """Displays the next image in the image queue, and adds a new image to the queue."""
@@ -173,8 +182,6 @@ class ScreenManager:
     def set_image(self, img):
         """Sets a new random image chosen from the images source.
         """
-        # TODO: Catch and handle image fetch failure (probably due to network failure, invalid API credentials).
-
         # Pre-process the image.
         width, height = self.eink_display.resolution
         img = image_processor.central_crop(img,  width / height)

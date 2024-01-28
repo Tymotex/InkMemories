@@ -60,7 +60,8 @@ class ImageRetriever:
     def get_random_image(self) -> ImageType:
         """Retrieves one random image from the image source."""
         all_images = self.get_path_of_all_images()
-        # TODO(image retrieval error): throw(there are no images)
+        if not all_images: 
+            raise Exception("No images were found in fetch, in an attempt to get a random image.")
 
         # Randomly pick an image from all the images.
         chosen_image_file_path = random.choice(all_images)
@@ -73,7 +74,9 @@ class ImageRetriever:
     def get_random_images(self, num_images) -> List[ImageType]:
         """Retrieves `num_images` number of random images from the image source."""
         all_images = self.get_path_of_all_images()
-        # TODO(image retrieval error): throw(there are no images)
+        if not all_images: 
+            raise Exception(f"No images were found in fetch, in an attempt to get {num_images} random images. ")
+
 
         num_images = min(num_images, len(all_images))
         # Randomly pick an image from all the images.
