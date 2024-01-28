@@ -21,10 +21,16 @@ https://github.com/Tymotex/InkMemories/assets/54927071/7238f156-209b-4a7c-9688-9
 
 ## Usage Notes
 
-Follow the ['Setup Instructions'](#setup-instructions) to begin running Ink Memories.
+Follow the ['Setup Instructions'](#setup-instructions) to set up and begin running Ink Memories on a new Pi zero.
 
+InkMemories will automatically display a new image to the screen every hour.
+
+Using the buttons:
 - Press the top left button (labeled 'A') to force refresh a new image.
-- Press the bottom left button (labeled 'D') to gracefully shut down the system.
+- Press the second button from the top (labeled 'B') to enter debug mode which displays some logs from the main Python script.
+- While in debug mode, press the third button from the top (labeled 'C') to refresh the troubleshooting screen.
+    - Note: The troubleshooting screen does not refresh by itself. Real-time updates are not feasible when the eink display used here takes several seconds to refresh.
+- Press the bottom left button (labeled 'D') to begin gracefully shutting down the system.
   - Unplug after several seconds to disconnect power.
   - The image will persist on the eInk display indefinitely and without power.
   - Upon reconnecting to power, the system will automatically begin refreshing the image periodically again.
@@ -59,6 +65,7 @@ These instructions assume that you have set up Raspbian OS.
         ```sh
         sudo systemctl status ink-memories-image-source.service
         sudo systemctl status ink-memories-displayer.service
+        sudo systemctl status debug-logs-html-snapshotter.service
         ```
 
     - Manage Ink Memories with `systemctl`:
@@ -67,6 +74,7 @@ These instructions assume that you have set up Raspbian OS.
         # Kill the service.
         sudo systemctl stop ink-memories-image-source.service
         sudo systemctl stop ink-memories-displayer.service
+        sudo systemctl stop debug-logs-html-snapshotter.service
         ```
 
     - For reference, in my case I supplied these args to setup.sh when it prompted for them:
@@ -126,6 +134,27 @@ image (e.g. one that includes the apparent subject of the photo or the
 photographee's faces.)
 
 ![center crop demonstration](./assets/crop.png)
+
+### Debug Mode
+
+Pressing 'B' will toggle debug mode, showing a troubleshooting screen. Behind
+the scenes, a log file is transformed into an HTML file, then the Chromium CLI
+is used to take a headless snapshot of that HTML file. Being an HTML file, the
+troubleshooting page can be customised with other content, as well as CSS. Since
+this project doesn't have too many failure modes, a simple dump of the logs is
+all that's displayed here.
+
+The InkyImpressions does not provide native support for displaying HTML files,
+so this project introduces a daemon, `debug-logs-html-snapshotter`, that
+polls the log file and formats the most recent logs into an HTML file, and takes
+a screenshot of it, bounded to the dimensions of the eInk display. (An
+improvement to this implementation is to use a file watcher on the log file to
+trigger the transformation to HTML instead of polling the log file every few
+seconds.)
+
+From the `ScreenManager`'s perspective, the debug screen is created and managed
+externally - it simply just depends on it being there and displays whatever is
+there.
 
 ## Potential Features & Improvements
 This was a rushed project. Here are some ideas for how to improve upon the MVP:
