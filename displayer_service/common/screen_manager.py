@@ -46,6 +46,11 @@ class ScreenManager:
     # Utility for retrieving images from the image source.
     image_retriever: ImageRetriever
 
+    # Whether the user is currently in debugging mode. 
+    # The user can enter debugging mode by pressing the 'B' button. 
+    # Debugging mode can be exited via a force image refresh ('A' button).
+    is_debugging = False
+
     def __init__(self):
         with self.screen_lock:
             self.logger = logging.getLogger(__name__)
@@ -132,8 +137,14 @@ class ScreenManager:
         """Periodically displays a new image."""
         image_refresh_period_secs = self.display_config.config['display']['refresh_period_secs']
         while True:
-            self.logger.info("Attempting to set a new random image.")
+            self.logger.info("Automatic image refresh requested.")
 
+            if self.is_debugging: 
+                self.logger.info(
+                    "Debugging mode is ON. Skipping image refresh."
+                )
+                continue
+            
             self.output_and_queue_image()
 
             self.logger.info("Waiting for %s seconds.",
@@ -177,6 +188,11 @@ class ScreenManager:
 
         self.logger.info("Done writing image.")
 
+    def push_debugger_update(self):
+        self.logger.info("Fetching the latest debugging information.")
+
+        # TODO: Fetch and update the display with the latest debugging information
+
     def handle_button_press(self, pressed_pin):
         """Executes specific actions on button presses.
 
@@ -193,10 +209,13 @@ class ScreenManager:
                 self.logger.info(
                     "Skipping image refresh because refresh is already underway.")
                 return
+            self.is_debugging = False
             self.output_and_queue_image()
         elif label == 'B':
             self.logger.info(
-                "User pressed B. Nothing is implemented for this button.")
+                "User pressed B." + "Entering debugging mode." if self.is_debugging else "Refreshing debugger.")
+            self.is_debugging = True
+            self.push_debugger_update()
         elif label == 'C':
             self.logger.info(
                 "User pressed C. Nothing is implemented for this button.")
