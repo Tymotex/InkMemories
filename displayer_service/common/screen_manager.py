@@ -143,13 +143,11 @@ class ScreenManager:
                 self.logger.info(
                     "Debugging mode is ON. Skipping image refresh."
                 )
-                continue
-            
-            self.output_and_queue_image()
+            else:
+                self.output_and_queue_image()
 
             self.logger.info("Waiting for %s seconds.",
                              image_refresh_period_secs)
-
             time.sleep(image_refresh_period_secs)
 
     def queue_image(self):
