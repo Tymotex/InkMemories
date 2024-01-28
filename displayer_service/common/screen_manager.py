@@ -154,6 +154,7 @@ class ScreenManager:
 
         with self.screen_lock:
             next_image = self.image_queue.get()
+            next_image = image_processor.burn_date_into_image(next_image)
             self.set_image(next_image)
         self.image_retriever.clean_up_image(next_image)
 
