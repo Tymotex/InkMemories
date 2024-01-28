@@ -175,7 +175,19 @@ class ScreenManager:
             [img.filename for img in list(self.image_queue.queue)])
 
         with self.screen_lock:
-            next_image = self.image_queue.get()
+            try:
+                next_image = self.image_queue.get()
+            except queue.Empty:
+                self.logger.error("Tried to set the next image, but queue was empty.")
+
+                self.logger.info("Repopulating the image buffer.")
+                chosen_images = self.image_retriever.get_random_images(
+                        INITIAL_QUEUE_SIZE)
+                for img in chosen_images:
+                    self.image_queue.put(img)
+
+                next_image = self.image_queue.get()
+
             self.set_image(next_image)
         self.image_retriever.clean_up_image(next_image)
 
