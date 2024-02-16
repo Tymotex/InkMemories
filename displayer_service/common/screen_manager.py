@@ -46,6 +46,11 @@ class ScreenManager:
     # Utility for retrieving images from the image source.
     image_retriever: ImageRetriever
 
+    # Whether the user is currently in debugging mode. 
+    # The user can enter debugging mode by pressing the 'B' button. 
+    # Debugging mode can be exited via a force image refresh ('A' button).
+    is_debugging = False
+
     def __init__(self):
         with self.screen_lock:
             self.logger = logging.getLogger(__name__)
@@ -59,9 +64,18 @@ class ScreenManager:
             self.image_retriever = ImageRetriever(
                 self.logger, self.display_config)
 
-            # Populate image buffer
-            chosen_images = self.image_retriever.get_random_images(
-                INITIAL_QUEUE_SIZE)
+            # Populate the image buffer with some intiial images. 
+            # Keep trying until it is populated. 
+            chosen_images = None
+            while chosen_images is None:
+                try:
+                    chosen_images = self.image_retriever.get_random_images(
+                        INITIAL_QUEUE_SIZE)
+                except Exception as e: 
+                    self.logger.error(e)
+                    self.logger.info("Initial population of images has failed. Trying again in 300 seconds.")
+                    time.sleep(300)
+
             for img in chosen_images:
                 self.image_queue.put(img)
 
@@ -132,18 +146,26 @@ class ScreenManager:
         """Periodically displays a new image."""
         image_refresh_period_secs = self.display_config.config['display']['refresh_period_secs']
         while True:
-            self.logger.info("Attempting to set a new random image.")
+            self.logger.info("Automatic image refresh requested.")
 
-            self.output_and_queue_image()
+            if self.is_debugging: 
+                self.logger.info(
+                    "Debugging mode is ON. Skipping image refresh."
+                )
+            else:
+                self.output_and_queue_image()
 
             self.logger.info("Waiting for %s seconds.",
                              image_refresh_period_secs)
-
             time.sleep(image_refresh_period_secs)
 
     def queue_image(self):
         """Adds a random image to image buffer"""
-        self.image_queue.put(self.image_retriever.get_random_image())
+        try:
+            self.image_queue.put(self.image_retriever.get_random_image())
+        except Exception as e:
+            self.logger.error(e)
+            self.logger.info("Failed to queue image. Size of queue: %s", self.image_queue.qsize())
 
     def output_and_queue_image(self):
         """Displays the next image in the image queue, and adds a new image to the queue."""
@@ -152,8 +174,22 @@ class ScreenManager:
         self.logger.info(
             [img.filename for img in list(self.image_queue.queue)])
 
-        with self.screen_lock:
+        try:
             next_image = self.image_queue.get()
+        except queue.Empty:
+            # TODO: handle case where this this is requested multiple times. 
+            self.logger.error("Tried to set the next image, but queue was empty.")
+
+            self.logger.info("Repopulating the image buffer.")
+            # TODO: consider consolidating this logic with the initial image population.
+            chosen_images = self.image_retriever.get_random_images(
+                    INITIAL_QUEUE_SIZE)
+            for img in chosen_images:
+                self.image_queue.put(img)
+
+            next_image = self.image_queue.get()
+
+        with self.screen_lock:
             self.set_image(next_image)
         self.image_retriever.clean_up_image(next_image)
 
@@ -164,8 +200,6 @@ class ScreenManager:
     def set_image(self, img):
         """Sets a new random image chosen from the images source.
         """
-        # TODO: Catch and handle image fetch failure (probably due to network failure, invalid API credentials).
-
         # Pre-process the image.
         width, height = self.eink_display.resolution
         img = image_processor.central_crop(img,  width / height)
@@ -176,6 +210,11 @@ class ScreenManager:
         self.eink_display.show()
 
         self.logger.info("Done writing image.")
+
+    def push_debugger_update(self):
+        self.logger.info("Fetching the latest debugging information.")
+
+        # TODO: Fetch and update the display with the latest debugging information
 
     def handle_button_press(self, pressed_pin):
         """Executes specific actions on button presses.
@@ -193,10 +232,13 @@ class ScreenManager:
                 self.logger.info(
                     "Skipping image refresh because refresh is already underway.")
                 return
+            self.is_debugging = False
             self.output_and_queue_image()
         elif label == 'B':
             self.logger.info(
-                "User pressed B. Nothing is implemented for this button.")
+                "User pressed B." + "Entering debugging mode." if self.is_debugging else "Refreshing debugger.")
+            self.is_debugging = True
+            self.push_debugger_update()
         elif label == 'C':
             self.logger.info(
                 "User pressed C. Nothing is implemented for this button.")
