@@ -103,9 +103,12 @@ class ImageRetriever:
 
     def clean_up_image(self, img: ImageType):
         """Cleans up temporary local copy of the given image."""
+        self.logger.info("Attempting to clean up image.")
         if not img:
+            self.logger.info("Image is null, won't clean up.")
             return
         if not os.path.exists(img.filename):
+            self.logger.info(f"Image path doesn't exist, won't clean up. Image path: {img.filename}")
             return
         os.remove(img.filename)
 
