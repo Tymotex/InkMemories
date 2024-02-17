@@ -21,9 +21,17 @@ https://github.com/Tymotex/InkMemories/assets/54927071/7238f156-209b-4a7c-9688-9
 
 ## Usage Notes
 
-Follow the ['Setup Instructions'](#setup-instructions) to begin running Ink Memories.
+Follow the ['Setup Instructions'](#setup-instructions) to set up and begin running Ink Memories on a new Pi zero.
+
+InkMemories will automatically display a new image to the screen every hour.
 
 - Press the top left button (labeled 'A') to force refresh a new image.
+- Press the second button from the top (labeled 'B') to enter debug mode which displays some recent logs from the main Python script.
+    - Pressing 'B' while in debug mode refreshes the displayed logs. Due to the
+      screen's long refresh rate, the display can't be real-time.
+      [Faster monochrome refresh is not supported](https://github.com/pimoroni/inky/issues/155)
+    - Pressing 'A' while in debug mode switches back to showing images
+      regularly.
 - Press the bottom left button (labeled 'D') to gracefully shut down the system.
   - Unplug after several seconds to disconnect power.
   - The image will persist on the eInk display indefinitely and without power.
