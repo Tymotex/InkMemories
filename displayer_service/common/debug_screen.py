@@ -13,6 +13,7 @@ MAX_LINES = 22
 
 # Font path relative to the root folder, `displayer_service`.
 FONT_PATH = "fonts/Mono.ttf"
+FONT_SIZE = 20
 
 
 def transform_logs_to_image(logs_path: str) -> ImageType:
@@ -24,13 +25,15 @@ def transform_logs_to_image(logs_path: str) -> ImageType:
     # Create a blank white image
     debug_screen_img = Image.new('RGB', (600, 448), 'white')
     draw = ImageDraw.Draw(debug_screen_img)
-    font = ImageFont.truetype(FONT_PATH, 20)
+    font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
 
     # Extract last MAX_LINES lines from the log file and reverse.
     lines = []
     with open(logs_path, "r", encoding='utf-8') as logs_file:
         lines = logs_file.read().splitlines()
-    lines = lines[-22:]
+    # Get only the last MAX_LINES items and reverse the list so most recent logs
+    # are first.
+    lines = lines[-MAX_LINES:]
     lines = lines[::-1]
 
     # Write out each line into a PIL image, accounting for text-wrapping. Stop
@@ -45,7 +48,7 @@ def transform_logs_to_image(logs_path: str) -> ImageType:
         while curr_line and lines_consumed < MAX_LINES:
             # Write out the first CHARS_PER_LINE characters, then slice it out.
             line_to_write = curr_line[:CHARS_PER_LINE].strip()
-            draw.text((0, lines_consumed * 18), line_to_write,
+            draw.text((0, lines_consumed * FONT_SIZE), line_to_write,
                       font=font, fill=(0, 0, 0))
             curr_line = curr_line[CHARS_PER_LINE:]
             lines_consumed += 1

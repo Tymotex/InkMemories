@@ -176,12 +176,10 @@ class ScreenManager:
         try:
             next_image = self.image_queue.get()
         except queue.Empty:
-            # TODO: handle case where this this is requested multiple times.
             self.logger.error(
                 "Tried to set the next image, but queue was empty.")
 
             self.logger.info("Repopulating the image buffer.")
-            # TODO: consider consolidating this logic with the initial image population.
             chosen_images = self.image_retriever.get_random_images(
                 INITIAL_QUEUE_SIZE)
             for img in chosen_images:
@@ -251,9 +249,9 @@ class ScreenManager:
             self.is_debugging = False
             self.output_and_queue_image()
         elif label == 'B':
-            self.logger.info(
-                "User pressed B." + "Entering debugging mode." if self.is_debugging else "Refreshing debugger.")
             self.is_debugging = True
+            self.logger.info(
+                "User pressed B. " + ("Entering debugging mode." if self.is_debugging else "Refreshing debugger."))
             self.push_debugger_update()
         elif label == 'C':
             self.logger.info(
