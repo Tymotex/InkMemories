@@ -225,7 +225,7 @@ class ScreenManager:
 
         with self.screen_lock:
             # Ensure the image fits into the eink display's resolution.
-            debug_screen_img = debug_screen.transform_logs_to_image()
+            debug_screen_img = debug_screen.transform_logs_to_image(LOG_FILE_PATH)
             debug_screen_img = debug_screen_img.resize(
                 self.eink_display.resolution)
             self.set_image(debug_screen_img)
