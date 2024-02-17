@@ -218,13 +218,13 @@ class ScreenManager:
         Flipping on debug mode will not pre-empt any in-progress screen
         refreshes.
         """
-        self.logger.info("Already in debug mode. Fetching latest debug logs." if self.is_debugging else "Entering debug mode.")
-        self.is_debugging = True
-
         if self.screen_lock.locked():
             self.logger.info(
                 "Attempted to enter debug mode while screen was busy. Skipping.")
             return
+
+        self.logger.info("Already in debug mode. Fetching latest debug logs." if self.is_debugging else "Entering debug mode.")
+        self.is_debugging = True
 
         with self.screen_lock:
             # Ensure the image fits into the eink display's resolution.
