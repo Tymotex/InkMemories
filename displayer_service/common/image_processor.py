@@ -1,9 +1,14 @@
 #!/usr/bin/python3
 
 import os
-from PIL import Image, ImageDraw, ExifTags
+from PIL import Image, ImageDraw, ExifTags, ImageFont
 from pathlib import Path
+from datetime import datetime
 
+
+# Font path relative to the root folder, `displayer_service`.
+FONT_PATH = "fonts/Mono.ttf"
+FONT_SIZE = 20
 
 def determine_central_crop_coordinates(image_width_px, image_height_px, crop_aspect_ratio):
     """Determine cropping box coordinates.
@@ -52,12 +57,13 @@ def burn_date_into_image(img):
     formatted_time = creation_time.strftime(
         "%dth %b, %Y, %I:%M%p").replace(" 0", " ")
 
-    # Burn the text to the bottom right of the image.
+    # Burn the text to the bottom right of the image with a small padding.
     image_draw = ImageDraw.Draw(img)
-    anchor_position = (590, 438)
+    img_width, img_height = img.size
+    anchor_position = (img_width - 10, img_height - 10)
+    font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
     image_draw.text(anchor_position, formatted_time, fill=(0, 0, 0),
-                    stroke_fill=(255, 255, 255), stroke_width=2, font_size=20,
-                    anchor="rs")
+                    font=font, anchor="rs", stroke_fill=(255, 255, 255), stroke_width=2)
     return img
 
 
