@@ -187,11 +187,12 @@ class ScreenManager:
 
             next_image = self.image_queue.get()
 
-        next_image = self.resize_image(next_image)
-        next_image = image_processor.burn_date_into_image(next_image)
+        img_copy = next_image.copy()
+        img_copy  = self.resize_image(img_copy)
+        img_copy = image_processor.burn_date_into_image(img_copy)
 
         with self.screen_lock:
-            self.show_image(next_image)
+            self.show_image(img_copy)
         self.image_retriever.clean_up_image(next_image)
 
         # Run as thread to make consecutive A presses instant response.
@@ -206,6 +207,7 @@ class ScreenManager:
         width, height = self.eink_display.resolution
         img = image_processor.central_crop(img,  width / height)
         img = img.resize(self.eink_display.resolution)
+        return img
 
     def show_image(self, img):
         """Sets a new random image chosen from the images source.

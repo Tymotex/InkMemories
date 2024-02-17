@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import os
-from PIL import Image, ImageDraw, ExifTags
+from PIL import Image, ImageDraw, ExifTags, ImageFont
 from pathlib import Path
 from datetime import datetime
 
@@ -56,9 +56,9 @@ def burn_date_into_image(img):
     # Burn the text to the bottom right of the image.
     image_draw = ImageDraw.Draw(img)
     anchor_position = (590, 438)
+    font = ImageFont.truetype("fonts/Mono.ttf", 20)
     image_draw.text(anchor_position, formatted_time, fill=(0, 0, 0),
-                    stroke_fill=(255, 255, 255), stroke_width=2, font_size=20,
-                    anchor="rs")
+                    font=font, anchor="rs", stroke_fill=(255, 255, 255), stroke_width=2)
     return img
 
 
