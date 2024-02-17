@@ -187,23 +187,29 @@ class ScreenManager:
 
             next_image = self.image_queue.get()
 
+        next_image = self.resize_image(next_image)
         next_image = image_processor.burn_date_into_image(next_image)
+
         with self.screen_lock:
-            self.set_image(next_image)
+            self.show_image(next_image)
         self.image_retriever.clean_up_image(next_image)
 
         # Run as thread to make consecutive A presses instant response.
         enqueue_thread = threading.Thread(target=self.queue_image)
         enqueue_thread.start()
 
-    def set_image(self, img):
-        """Sets a new random image chosen from the images source.
+    def resize_image(self, img):
+        """
+        Preprocess the image by cropping and resizing if needed.
         """
         # Pre-process the image.
         width, height = self.eink_display.resolution
         img = image_processor.central_crop(img,  width / height)
         img = img.resize(self.eink_display.resolution)
 
+    def show_image(self, img):
+        """Sets a new random image chosen from the images source.
+        """
         # Writing the image to the screen.
         self.eink_display.set_image(img)
         self.eink_display.show()
@@ -229,7 +235,7 @@ class ScreenManager:
             debug_screen_img = debug_screen.transform_logs_to_image(LOG_FILE_PATH)
             debug_screen_img = debug_screen_img.resize(
                 self.eink_display.resolution)
-            self.set_image(debug_screen_img)
+            self.show_image(debug_screen_img)
 
     def handle_button_press(self, pressed_pin):
         """Executes specific actions on button presses.
