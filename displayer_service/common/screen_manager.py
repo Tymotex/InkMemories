@@ -253,7 +253,7 @@ class ScreenManager:
             self.output_and_queue_image()
         elif label == 'B':
             self.logger.info("User pressed B. Displaying the debug screen.")
-            self.push_troubleshooting_screen()
+            self.push_debugger_update()
         elif label == 'C':
             self.logger.info(
                 "User pressed C. Nothing is implemented for this button.")
