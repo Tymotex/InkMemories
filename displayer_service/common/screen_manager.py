@@ -224,6 +224,9 @@ class ScreenManager:
                 "Attempted to enter debug mode while screen was busy. Skipping.")
             return
 
+        self.logger.info("Already in debug mode. Fetching latest debug logs." if self.is_debugging else "Entering debug mode.")
+        self.is_debugging = True
+
         with self.screen_lock:
             # Ensure the image fits into the eink display's resolution.
             debug_screen_img = debug_screen.transform_logs_to_image(LOG_FILE_PATH)
@@ -250,9 +253,7 @@ class ScreenManager:
             self.is_debugging = False
             self.output_and_queue_image()
         elif label == 'B':
-            self.is_debugging = True
-            self.logger.info(
-                "User pressed B. " + ("Entering debugging mode." if self.is_debugging else "Refreshing debugger."))
+            self.logger.info("User pressed B. Displaying the debug screen.")
             self.push_debugger_update()
         elif label == 'C':
             self.logger.info(
