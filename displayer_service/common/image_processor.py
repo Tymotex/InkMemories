@@ -3,6 +3,7 @@
 import os
 from PIL import Image, ImageDraw, ExifTags
 from pathlib import Path
+from datetime import datetime
 
 
 def determine_central_crop_coordinates(image_width_px, image_height_px, crop_aspect_ratio):
