@@ -218,6 +218,9 @@ class ScreenManager:
         Flipping on debug mode will not pre-empt any in-progress screen
         refreshes.
         """
+        self.logger.info("Already in debug mode. Fetching latest debug logs." if self.is_debugging else "Entering debug mode.")
+        self.is_debugging = True
+
         if self.screen_lock.locked():
             self.logger.info(
                 "Attempted to enter debug mode while screen was busy. Skipping.")
@@ -225,7 +228,7 @@ class ScreenManager:
 
         with self.screen_lock:
             # Ensure the image fits into the eink display's resolution.
-            debug_screen_img = debug_screen.transform_logs_to_image()
+            debug_screen_img = debug_screen.transform_logs_to_image(LOG_FILE_PATH)
             debug_screen_img = debug_screen_img.resize(
                 self.eink_display.resolution)
             self.set_image(debug_screen_img)
@@ -249,10 +252,8 @@ class ScreenManager:
             self.is_debugging = False
             self.output_and_queue_image()
         elif label == 'B':
-            self.is_debugging = True
-            self.logger.info(
-                "User pressed B. " + ("Entering debugging mode." if self.is_debugging else "Refreshing debugger."))
-            self.push_debugger_update()
+            self.logger.info("User pressed B. Displaying the debug screen.")
+            self.push_troubleshooting_screen()
         elif label == 'C':
             self.logger.info(
                 "User pressed C. Nothing is implemented for this button.")
