@@ -55,7 +55,7 @@ def burn_date_into_image(img):
     # Format the creation date.
     creation_time = datetime.strptime(creation_time, "%Y:%m:%d %H:%M:%S")
     formatted_time = creation_time.strftime(
-        "%dth %b, %Y, %I:%M%p").replace(" 0", " ")
+        "%d %b, %Y, %I:%M%p").replace(" 0", " ")
 
     # Burn the text to the bottom right of the image with a small padding.
     image_draw = ImageDraw.Draw(img)
