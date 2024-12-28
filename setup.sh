@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/bash
 
 if [ "$EUID" -ne 0 ]; then
     echo "This script must be run with sudo."
@@ -12,6 +12,7 @@ echo "Configuring RClone."
 
 # Installing RClone.
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
+sudo apt install -y fuse3 python-pip
 
 # Setting up RClone's connection to Google Photos.
 rclone config
@@ -22,7 +23,6 @@ rclone config
 echo "Installing dependencies."
 
 sudo pip install -r displayer_service/requirements.txt
-pre-commit install
 
 # Inky throws an error, 'libopenblas.so.0: cannot open shared object file: No such file or directory'.
 # Installing this fixes it.
